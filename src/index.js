@@ -23,6 +23,7 @@ let galery = new SimpleLightbox('.gallery a', {
   showCounter: false,
   docClose: true,
   sourceAttr: 'href',
+  scrollZoom: false,
 });
 
 async function onSubmit(event) {
