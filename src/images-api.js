@@ -1,4 +1,5 @@
 const API_KEY = '14836280-095028a335045ad546bd82bf5';
+import axios from 'axios';
 export default class ImagesApi {
   constructor() {
     this.searchQuery = '';
@@ -6,16 +7,13 @@ export default class ImagesApi {
     this.quantity = 40;
   }
 
-  fetchCardByQuery() {
-    return fetch(
+  async fetchCardByQuery() {
+    const response = await axios.get(
       `https://pixabay.com/api/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=${this.quantity}`
-    ).then(response => {
-      if (!response.ok) {
-        return;
-      }
-      this.incrementPage();
-      return response.json();
-    });
+    );
+
+    this.incrementPage();
+    return response.data;
   }
 
   resetPage() {

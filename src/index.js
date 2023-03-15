@@ -12,35 +12,48 @@ const refs = {
 refs.form.addEventListener('submit', onSubmit);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
 const imagesApi = new ImagesApi();
-let dataCount = 0;
+let count = 0;
 
-function onSubmit(event) {
+async function onSubmit(event) {
   event.preventDefault();
   imagesApi.resetPage();
   refs.loadMoreBtn.classList.add('is-hidden');
 
   imagesApi.searchQuery = event.currentTarget.elements.searchQuery.value;
-  imagesApi
-    .fetchCardByQuery()
-    .then(data => {
-      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
-      if (data.hits.length === 0) {
-        return Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      }
-      clearGalleryContainer();
-      renderCard(data.hits);
+  try {
+    const { hits, totalHits } = await imagesApi.fetchCardByQuery();
 
-      refs.loadMoreBtn.classList.remove('is-hidden');
-    })
-    .catch(error => console.log(error));
+    if (hits.length > 0) {
+      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+    }
+    if (hits.length === 0) {
+      return Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+    clearGalleryContainer();
+    renderCard(hits);
+    refs.loadMoreBtn.classList.remove('is-hidden');
+    count = totalHits -40;
+    error => console.log(error.message);
+  }
 }
 
-function onLoadMore() {
-  imagesApi.fetchCardByQuery().then(data => {
-    renderCard(data.hits);
-  });
+async function onLoadMore() {
+  try {
+    const { hits } = await imagesApi.fetchCardByQuery();
+
+    if (count < 40) {
+      refs.loadMoreBtn.classList.add('is-hidden');
+      return Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+    renderCard(hits);
+    count -= 40;
+  } catch {
+    error => console.log(error.message);
+  }
 }
 
 function renderCard(dataCard) {
