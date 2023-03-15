@@ -37,16 +37,14 @@ async function onSubmit(event) {
   try {
     const { hits, totalHits } = await imagesApi.fetchCardByQuery();
 
-    if (hits.length > 0) {
-      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-    }
-
-    if (hits.length === 0) {
+    if (hits.length === 0 || imagesApi.searchQuery === '') {
       return Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
-
+    if (hits.length > 0) {
+      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+    }
     clearGalleryContainer();
     renderCard(hits);
     galery.refresh();
