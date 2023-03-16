@@ -32,23 +32,24 @@ async function onSubmit(event) {
 
   refs.loadMoreBtn.classList.add('is-hidden');
 
-  imagesApi.searchQuery = event.currentTarget.elements.searchQuery.value;
+  imagesApi.searchQuery = event.currentTarget.elements.searchQuery.value.trim();
 
   try {
     const { hits, totalHits } = await imagesApi.fetchCardByQuery();
 
     if (hits.length === 0 || imagesApi.searchQuery === '') {
+      clearGalleryContainer();
       return Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
     if (hits.length > 0) {
       Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+      clearGalleryContainer();
     }
     clearGalleryContainer();
     renderCard(hits);
     galery.refresh();
-    eazyLoadingImages();
     refs.loadMoreBtn.classList.remove('is-hidden');
   } catch {
     error => console.log(error.message);
@@ -58,10 +59,11 @@ async function onSubmit(event) {
 async function onLoadMore() {
   try {
     const { hits, totalHits } = await imagesApi.fetchCardByQuery();
-    const totalPages = totalHits / imagesApi.quantity;
+    const totalPages = Math.ceil(totalHits / imagesApi.quantity);
+
     if (imagesApi.page > totalPages) {
       refs.loadMoreBtn.classList.add('is-hidden');
-      return Notiflix.Notify.failure(
+      Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
