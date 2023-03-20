@@ -33,9 +33,18 @@ async function onSubmit(event) {
   refs.loadMoreBtn.classList.add('is-hidden');
 
   imagesApi.searchQuery = event.currentTarget.elements.searchQuery.value.trim();
+  if (imagesApi.searchQuery === '') {
+    return;
+  }
 
   try {
     const { hits, totalHits } = await imagesApi.fetchCardByQuery();
+
+    if (totalHits < imagesApi.quantity) {
+      refs.loadMoreBtn.classList.add('is-hidden');
+    } else {
+      refs.loadMoreBtn.classList.remove('is-hidden');
+    }
 
     if (hits.length === 0 || imagesApi.searchQuery === '') {
       clearGalleryContainer();
@@ -50,7 +59,6 @@ async function onSubmit(event) {
     clearGalleryContainer();
     renderCard(hits);
     galery.refresh();
-    refs.loadMoreBtn.classList.remove('is-hidden');
   } catch {
     error => console.log(error.message);
   }
